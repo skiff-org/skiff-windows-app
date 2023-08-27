@@ -1,0 +1,24 @@
+﻿<core:NotificationDisplayPart x:Class="CustomNotificationsExample.CustomCommand.CustomCommandDisplayPart"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CustomNotificationsExample.CustomCommand"
+             xmlns:core="clr-namespace:ToastNotifications.Core;assembly=ToastNotifications"
+             mc:Ignorable="d" 
+             d:DesignHeight="60" d:DesignWidth="250" Background="WhiteSmoke"
+             d:DataContext="{d:DesignInstance local:CustomCommandNotification, IsDesignTimeCreatable=False}" >
+    <Border BorderThickness="1" BorderBrush="LightGray">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding Message}" FontWeight="Bold" Foreground="Black" />
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <Button Content="Confirm" Width="60" Margin="2" IsDefault="True" Command="{Binding ConfirmCommand}"  />
+                <Button Content="Decline" Width="60" Margin="2" IsCancel="True" Command="{Binding DeclineCommand}"  />
+            </StackPanel>
+        </Grid>
+    </Border>
+</core:NotificationDisplayPart>
