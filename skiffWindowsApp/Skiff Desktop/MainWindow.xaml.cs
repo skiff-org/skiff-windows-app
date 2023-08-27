@@ -144,8 +144,6 @@ namespace Skiff_Desktop
             WebView2.CoreWebView2.Settings.IsWebMessageEnabled = true; // Make sure this is set to true
 
             await WebView2.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync("window.IsSkiffWindowsDesktop = true;");
-
-            ShowToastNotification("Andrew", "a very long subject message lqwkje rlkqw jrelkq jwlrek jqwlek jr");
         }
 
         private async void WebView2_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
