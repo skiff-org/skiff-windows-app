@@ -23,7 +23,7 @@ namespace Skiff_Desktop
     public partial class MainWindow : Window
     {
         private string baseURL = "https://app.skiff.com/";
-        
+
         public MainWindow()
         {
             InitializeComponent();
@@ -49,7 +49,7 @@ namespace Skiff_Desktop
             WebView2.CoreWebView2.Settings.IsPasswordAutosaveEnabled = true;
             WebView2.CoreWebView2.Settings.IsGeneralAutofillEnabled = true;
             WebView2.CoreWebView2.Settings.IsStatusBarEnabled = false;
-            
+
             await WebView2.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync("window.IsSkiffWindowsDesktop = true;");
         }
 
@@ -60,11 +60,23 @@ namespace Skiff_Desktop
 
         private void CoreWebView2_NewWindowRequested(object? sender, CoreWebView2NewWindowRequestedEventArgs e)
         {
+            e.Handled = true;
+
+            // In the link is a skiff link open in current window
             if (e.Uri.StartsWith(baseURL))
             {
-                // In the link is a skiff link open in current window
-                e.Handled = true;
                 WebView2.CoreWebView2.Navigate(e.Uri);
+            }
+            else if (Uri.TryCreate(e.Uri, UriKind.Absolute, out var uri))
+            {
+                if (uri.Scheme == "http" || uri.Scheme == "https")
+                {
+                    using var _ = Process.Start(new ProcessStartInfo
+                    {
+                        UseShellExecute = true,
+                        FileName = e.Uri,
+                    });
+                }
             }
         }
 
