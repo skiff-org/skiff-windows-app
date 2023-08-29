@@ -33,8 +33,15 @@ namespace Skiff_Desktop
     /// </summary>
     public partial class MainWindow : Window
     {
+        // Counter and action not yet updated. We need messaging from server or webview.
+        // Use placeholder tray menu items to demo this.
+        public int UnreadCount { get; /*private*/ set; }
+        public Action UnreadCounterChanged;
+
         private string baseURL = "https://app.skiff.com/";
         private Notifier _notifier;
+        private TrayController _trayController;
+
 
         public MainWindow()
         {
@@ -55,6 +62,8 @@ namespace Skiff_Desktop
                 cfg.DisplayOptions.Width = 360;
                 cfg.DisplayOptions.TopMost = true;
             });
+
+            _trayController = new TrayController(this);
         }
 
         private void ShowToastNotification(string title, string message)
