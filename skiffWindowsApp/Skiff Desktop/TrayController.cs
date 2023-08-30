@@ -117,14 +117,14 @@ namespace Skiff_Desktop
         // Remove for release.
         private void TestDot(object? sender, EventArgs e)
         {
-            _mainWindow.UnreadCount++;
+            _mainWindow.UpdateUnreadCount(_mainWindow.UnreadCount + 1);
             UpdateTrayInfo();
         }
 
         // Remove for release.
         private void ClearDot(object? sender, EventArgs e)
         {
-            _mainWindow.UnreadCount = 0;
+            _mainWindow.UpdateUnreadCount(0);
             UpdateTrayInfo();
         }
     }
