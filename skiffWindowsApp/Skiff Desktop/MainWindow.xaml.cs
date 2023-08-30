@@ -34,8 +34,7 @@ namespace Skiff_Desktop
 
             _notifier = new Notifier(cfg =>
             {
-                cfg.PositionProvider = new WindowPositionProvider(
-                    parentWindow: this,
+                cfg.PositionProvider = new PrimaryScreenPositionProvider(
                     corner: Corner.BottomRight,
                     offsetX: 10,
                     offsetY: 10);
