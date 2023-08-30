@@ -98,7 +98,7 @@ namespace Skiff_Desktop
             }
         }
 
-        protected void OnWindowStateChanged(object? sender, EventArgs e)
+        private void OnWindowStateChanged(object? sender, EventArgs e)
         {
             if (_mainWindow.WindowState == WindowState.Minimized && _traySettingMenuItem.Checked)
             {
