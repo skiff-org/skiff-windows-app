@@ -7,6 +7,8 @@
     <RootNamespace>Skiff_Desktop</RootNamespace>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <AssemblyVersion>1.0.0.3</AssemblyVersion>
+    <FileVersion>1.0.0.3</FileVersion>
 
   </PropertyGroup>
 
