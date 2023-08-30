@@ -19,6 +19,7 @@ namespace Skiff_Desktop
             _mainWindow = mainWindow;
             _mainWindow.StateChanged += OnWindowStateChanged;
             _mainWindow.UnreadCounterChanged += UpdateTrayInfo;
+            _mainWindow.Closed += OnWindowClosed;
 
             InitIconsBitmaps();
             InitTrayIcon();
@@ -57,9 +58,6 @@ namespace Skiff_Desktop
                     {
                         new ToolStripMenuItem("Show", null, OnOpenFromTray),
                         _traySettingMenuItem,
-                        new ToolStripSeparator(),                           // Remove for release.
-                        new ToolStripMenuItem("Test Dot", null, TestDot),   // Remove for release.
-                        new ToolStripMenuItem("Clear Dot", null, ClearDot),     // Remove for release.
                         new ToolStripSeparator(),
                         new ToolStripMenuItem("Quit", null, OnCloseFromTray)
                     }
@@ -106,26 +104,18 @@ namespace Skiff_Desktop
             }
         }
 
+        private void OnWindowClosed(object? sender, EventArgs e)
+        {
+            _trayIcon.Visible = false;
+            _trayIcon.Dispose();
+        }
+
         private void OnCloseFromTray(object? sender, EventArgs e)
         {
             _trayIcon.Visible = false;
             _trayIcon.Dispose();
 
             _mainWindow.Close();
-        }
-
-        // Remove for release.
-        private void TestDot(object? sender, EventArgs e)
-        {
-            _mainWindow.UpdateUnreadCount(_mainWindow.UnreadCount + 1);
-            UpdateTrayInfo();
-        }
-
-        // Remove for release.
-        private void ClearDot(object? sender, EventArgs e)
-        {
-            _mainWindow.UpdateUnreadCount(0);
-            UpdateTrayInfo();
         }
     }
 }
