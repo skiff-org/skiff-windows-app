@@ -1,28 +1,11 @@
 ﻿using Microsoft.Web.WebView2.Core;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using static System.Net.Mime.MediaTypeNames;
 using ToastNotifications;
 using ToastNotifications.Lifetime;
 using ToastNotifications.Position;
-using ToastNotifications.Messages;
-using ToastNotifications.Messages.Core;
 using ToastNotifications.Core;
 using CustomNotificationsExample.CustomMessage;
 
@@ -33,8 +16,16 @@ namespace Skiff_Desktop
     /// </summary>
     public partial class MainWindow : Window
     {
+        // Counter and action not yet updated. We need messaging from server or webview.
+        // Use placeholder tray menu items to demo this.
+        public int UnreadCount { get; private set; }
+        public Action UnreadCounterChanged;
+
         private string baseURL = "https://app.skiff.com/";
         private Notifier _notifier;
+        private TrayController _trayController;
+        private MessageProcessor _messageProcessor;
+
 
         public MainWindow()
         {
@@ -54,9 +45,12 @@ namespace Skiff_Desktop
                 cfg.DisplayOptions.Width = 360;
                 cfg.DisplayOptions.TopMost = true;
             });
+
+            _trayController = new TrayController(this);
+            _messageProcessor = new MessageProcessor(this);
         }
 
-        private void ShowToastNotification(string title, string message)
+        internal void ShowToastNotification(string title, string message)
         {
              var options = new MessageOptions { FreezeOnMouseEnter = true };
             _notifier.ShowCustomMessage(title, message, options);
@@ -67,57 +61,7 @@ namespace Skiff_Desktop
             _notifier.Dispose();
             base.OnClosed(e);
         }
-
-        private void CoreWebView2_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
-        {
-            try
-            {
-                string rawMessage = e.TryGetWebMessageAsString();
-                // Deserialize the received message
-                var receivedMessage = JsonSerializer.Deserialize<ReceivedMessage>(rawMessage);
-                // Check if the type is "newMessageNotifications"
-                if (receivedMessage.Type == "newMessageNotifications")
-                {
-                    foreach (var notification in receivedMessage.Data.NotificationData)
-                    {
-                        Debug.WriteLine($"Displaying toast with title: { notification.Title} and body: { notification.Body}");
-
-                        // show toast
-                        // ToastNotification toast = new ToastNotification()
-                        ShowToastNotification(notification.Title, notification.Body);
-                    }
-                }
-                else
-                {
-                    Debug.WriteLine("Message type is not ‘newMessageNotifications’. Skipping.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Failed to process message: { ex.Message}");
-            }
-        }
-
-        public class ReceivedMessage
-        {
-            [JsonPropertyName("type")]
-            public string Type { get; set; }
-            [JsonPropertyName("data")]
-            public NotificationDataWrapper Data { get; set; }
-        }
-        public class NotificationDataWrapper
-        {
-            [JsonPropertyName("notificationData")]
-            public List<NotificationItem> NotificationData { get; set; }
-        }
-        public class NotificationItem
-        {
-            [JsonPropertyName("title")]
-            public string Title { get; set; }
-            [JsonPropertyName("body")]
-            public string Body { get; set; }
-        }
-
+        
         private async Task InitializeBrowser()
         {
             // When installing the app webview attempts to create a folder with cache folders in root app directory
@@ -139,7 +83,7 @@ namespace Skiff_Desktop
 
             // this is needed to allow the webview to communicate with the app
             // right now, only for sending notifications
-            WebView2.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
+            WebView2.CoreWebView2.WebMessageReceived += _messageProcessor.CoreWebView2_WebMessageReceived;
             WebView2.CoreWebView2.Settings.IsWebMessageEnabled = true; // Make sure this is set to true
 
             await WebView2.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync("window.IsSkiffWindowsDesktop = true;");
@@ -184,8 +128,6 @@ namespace Skiff_Desktop
             }
         }
 
-
-
         private void WebView2_NavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)
         {
             if (!e.Uri.StartsWith(baseURL))
@@ -195,6 +137,12 @@ namespace Skiff_Desktop
 
                 OpenInDefaultBrowser(e.Uri);
             }
+        }
+
+        internal void UpdateUnreadCount(int newTotal)
+        {
+            UnreadCount = newTotal;
+            UnreadCounterChanged?.Invoke();
         }
     }
 }
