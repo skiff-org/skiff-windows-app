@@ -121,7 +121,7 @@ namespace Skiff_Desktop
             [JsonPropertyName("published_at")]
             public DateTime ReleaseDate { get; set; }
 
-            public Version Version { get { return Version.Parse(Tag.Replace("skiff-windows-", "")); } }
+            public Version Version { get { return Version.Parse(Tag); } }
         }
 
         private async void CheckForUpdates(object? sender, EventArgs e)
