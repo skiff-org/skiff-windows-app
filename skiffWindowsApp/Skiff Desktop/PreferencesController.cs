@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -12,7 +13,7 @@ namespace Skiff_Desktop
         public bool CloseToTray { get; private set; }
         public WindowData WindowData { get; private set; }
 
-        public string Version { get; private set; }
+        public Version Version { get; private set; }
 
         private MainWindow _mainWindow;
 
@@ -37,7 +38,7 @@ namespace Skiff_Desktop
             StartMinimized = bool.Parse(_settingsPersistenceKey.GetValue(Start_Minimized_Name) as string ?? bool.FalseString);
             WindowData = WindowData.Parse(_settingsPersistenceKey.GetValue(Window_Pos_And_State_Name) as string);
 
-            Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            Version = Assembly.GetExecutingAssembly().GetName().Version;
         }
 
         public void SetLaunchOnStartup(bool enable)

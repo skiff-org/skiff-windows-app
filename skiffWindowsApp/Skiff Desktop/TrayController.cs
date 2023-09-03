@@ -121,7 +121,7 @@ namespace Skiff_Desktop
             [JsonPropertyName("published_at")]
             public DateTime ReleaseDate { get; set; }
 
-            public string Version { get { return Tag.Replace("skiff-windows-", ""); } }
+            public Version Version { get { return Version.Parse(Tag.Replace("skiff-windows-", "")); } }
         }
 
         private async void CheckForUpdates(object? sender, EventArgs e)
@@ -132,13 +132,13 @@ namespace Skiff_Desktop
             if (response.IsSuccessStatusCode)
             {
                 var content = response.Content.ReadAsStringAsync().Result;
-                var updateData = JsonSerializer.Deserialize<List<UpdateData>>(content);                
+                var updateData = JsonSerializer.Deserialize<List<UpdateData>>(content);
                 
                 // Sort releases by date and retrieve latest.
                 updateData.Sort((a, b) => b.ReleaseDate.CompareTo(a.ReleaseDate));                
                 var latestRelease = updateData.FirstOrDefault();
 
-                bool updateAvailable = latestRelease.Version != _preferencesController.Version;                
+                bool updateAvailable = latestRelease.Version > _preferencesController.Version;                
                 string msgBoxContent = $"Current version {_preferencesController.Version} is up to date.";
                 MessageBoxButton msgBoxButtons = MessageBoxButton.OK;
 
