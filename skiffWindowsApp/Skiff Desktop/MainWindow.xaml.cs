@@ -9,6 +9,7 @@ using ToastNotifications.Position;
 using ToastNotifications.Core;
 using CustomNotificationsExample.CustomMessage;
 using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace Skiff_Desktop
 {
@@ -50,6 +51,8 @@ namespace Skiff_Desktop
             });
 
             HttpClient = new HttpClient();
+            HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Skiff-Mail", "1.0"));
+
             _preferencesController = new PreferencesController(this);
             _trayController = new TrayController(this, _preferencesController);
             _messageProcessor = new MessageProcessor(this);

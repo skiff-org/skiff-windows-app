@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
 
@@ -124,12 +125,10 @@ namespace Skiff_Desktop
         }
 
         private async void CheckForUpdates(object? sender, EventArgs e)
-        {            
-            _mainWindow.HttpClient.Timeout = TimeSpan.FromSeconds(5);
-            _mainWindow.HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Skiff-Mail", "1.0"));
-
+        {
+            var timeoutSource = new CancellationTokenSource(5000);
             var url = "https://api.github.com/repos/skiff-org/skiff-windows-app/releases";
-            var response = await _mainWindow.HttpClient.GetAsync(url);
+            var response = await _mainWindow.HttpClient.GetAsync(url, timeoutSource.Token);
             if (response.IsSuccessStatusCode)
             {
                 var content = response.Content.ReadAsStringAsync().Result;
