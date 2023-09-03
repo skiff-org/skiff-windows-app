@@ -1,6 +1,7 @@
 # Skiff Windows app
 
-> NOTE: The Skiff Windows app is in its earliest beta version currently. We welcome all feedback.
+> [!NOTE]
+> The Skiff Windows app is in its earliest beta version currently. We welcome all feedback.
 
 This repository contains Skiff's native Windows app. The Windows app is a native WPF application built using the WebView2 Edge/Chromium runtime, with native bindings added to support file upload, file download, hardware keys, and other features.
 
