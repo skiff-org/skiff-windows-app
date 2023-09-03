@@ -8,6 +8,8 @@ using ToastNotifications.Lifetime;
 using ToastNotifications.Position;
 using ToastNotifications.Core;
 using CustomNotificationsExample.CustomMessage;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace Skiff_Desktop
 {
@@ -16,15 +18,17 @@ namespace Skiff_Desktop
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Counter and action not yet updated. We need messaging from server or webview.
-        // Use placeholder tray menu items to demo this.
-        public int UnreadCount { get; private set; }
         public Action UnreadCounterChanged;
+        public int UnreadCount { get; private set; }
+        public HttpClient HttpClient { get; private set; }
 
         private string baseURL = "https://app.skiff.com/";
         private Notifier _notifier;
         private TrayController _trayController;
         private MessageProcessor _messageProcessor;
+        private PreferencesController _preferencesController;
+
+        private WindowState _prevState;
 
 
         public MainWindow()
@@ -46,8 +50,69 @@ namespace Skiff_Desktop
                 cfg.DisplayOptions.TopMost = true;
             });
 
-            _trayController = new TrayController(this);
+            HttpClient = new HttpClient();
+            HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Skiff-Mail", "1.0"));
+
+            _preferencesController = new PreferencesController(this);
+            _trayController = new TrayController(this, _preferencesController);
             _messageProcessor = new MessageProcessor(this);
+
+            StateChanged += OnWindowStateChanged;
+            SizeChanged += OnWindowSizeChanged;
+            RestoreWindow();
+            ApplyWindowPreferences();
+        }
+
+        internal void RestoreWindow()
+        {
+            var windowData = _preferencesController.WindowData;
+            if (windowData != null)
+            {
+                Top = windowData.Top;
+                Left = windowData.Left;
+                Width = windowData.Width;
+                Height = windowData.Height;
+                WindowState = windowData.Maximized ? WindowState.Maximized : WindowState.Normal;
+            }
+            else
+            {
+                WindowState = WindowState.Maximized;
+            }
+        }
+
+        private void ApplyWindowPreferences()
+        {
+            if (_preferencesController.StartMinimized)
+            {
+                WindowState = WindowState.Minimized;
+                if (_preferencesController.MinimizeToTray)
+                    Hide();
+            }
+        }
+
+        private void SaveWindowData()
+        {
+            var windowData = new WindowData()
+            {
+                Top = Top,
+                Left = Left,
+                Width = Width,
+                Height = Height,
+                Maximized = WindowState == WindowState.Maximized
+            };
+            _preferencesController.SetWindowPosAndState(windowData);
+        }
+
+        private void OnWindowStateChanged(object? sender, EventArgs e)
+        {
+            if (WindowState != WindowState.Minimized)
+                SaveWindowData();
+        }
+
+        private void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (WindowState != WindowState.Minimized)
+                SaveWindowData();
         }
 
         internal void ShowToastNotification(string title, string message)
@@ -58,6 +123,9 @@ namespace Skiff_Desktop
 
         protected override void OnClosed(EventArgs e)
         {
+            if (WindowState != WindowState.Minimized)
+                SaveWindowData();
+
             _notifier.Dispose();
             base.OnClosed(e);
         }
@@ -113,7 +181,8 @@ namespace Skiff_Desktop
                 }
             }
         }
-        private void OpenInDefaultBrowser(string uri)
+
+        internal void OpenInDefaultBrowser(string uri)
         {
             try
             {
@@ -143,6 +212,39 @@ namespace Skiff_Desktop
         {
             UnreadCount = newTotal;
             UnreadCounterChanged?.Invoke();
+        }
+    }
+
+    [Serializable]
+    class WindowData
+    {
+        public double Top { get; set; }
+        public double Left { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public bool Maximized { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Top} {Left} {Width} {Height} {Maximized}";
+        }
+
+        public static WindowData Parse(string strData)
+        {
+            if (string.IsNullOrEmpty(strData))
+                return null;
+
+            string[] values = strData.Split(' ');
+            WindowData windowData = new()
+            {
+                Top = double.Parse(values[0]),
+                Left = double.Parse(values[1]),
+                Width = double.Parse(values[2]),
+                Height = double.Parse(values[3]),
+                Maximized = bool.Parse(values[4])
+            };
+
+            return windowData;
         }
     }
 }
