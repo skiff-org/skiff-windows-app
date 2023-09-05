@@ -11,6 +11,7 @@ namespace Skiff_Desktop
     {
         newMessageNotifications,
         unreadMailCount,
+        theme,
     }
 
     internal class MessageProcessor
@@ -56,6 +57,12 @@ namespace Skiff_Desktop
                         _mainWindow.UpdateUnreadCount(counterPayload.UnreadCount);
                         break;
 
+                    case MessageTypes.theme:
+                        var themePayload = JsonSerializer.Deserialize<ThemeChange>(receivedMessage.Data.ToString());
+                        Debug.WriteLine($"Updating theme: {themePayload.Theme}.");
+                        _mainWindow.SetTheme(themePayload.Theme);
+                        break;
+
                     default:
                         Debug.WriteLine("Message type is not ‘newMessageNotifications’. Skipping.");
                         break;
@@ -96,6 +103,12 @@ namespace Skiff_Desktop
         {
             [JsonPropertyName("numUnread")]
             public int UnreadCount { get; set; }
+        }
+
+        public class ThemeChange
+        {
+            [JsonPropertyName("value")]
+            public string Theme { get; set; }
         }
 
         #endregion

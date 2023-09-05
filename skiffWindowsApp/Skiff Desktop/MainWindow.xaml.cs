@@ -10,6 +10,8 @@ using ToastNotifications.Core;
 using CustomNotificationsExample.CustomMessage;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 
 namespace Skiff_Desktop
 {
@@ -30,6 +32,59 @@ namespace Skiff_Desktop
 
         private WindowState _prevState;
 
+        #region Dark Theme
+
+        [DllImport("dwmapi.dll", PreserveSig = true)]
+        static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+        const int DWMWA_CAPTION_COLOR = 35;
+
+        [DllImport("UXTheme.dll", SetLastError = true, EntryPoint = "#138")]
+        static extern bool ShouldSystemUseDarkMode();
+
+        private void SetDarkMode(bool darkMode)
+        {
+            var value = darkMode;
+
+            WindowInteropHelper hwnd = new WindowInteropHelper(this);
+            hwnd.EnsureHandle();
+            
+            // Sidebar color
+            int color = darkMode ? 0x1A1A1A : 0xF5F5F5;
+            try
+            {
+                DwmSetWindowAttribute(
+                    hwnd.Handle,
+                    DWMWA_CAPTION_COLOR,
+                    ref color, Marshal.SizeOf(color)
+                );
+            }
+            catch (EntryPointNotFoundException)
+            {
+                // Not supported (old Windows version?)
+            }
+        }
+
+        public void SetTheme(string? theme)
+        {
+            bool darkMode = false;
+            if (theme == null || theme.Contains("system"))
+            {
+                try
+                {
+                    darkMode = ShouldSystemUseDarkMode();
+                }
+                catch (EntryPointNotFoundException)
+                {
+                    // Not supported (old Windows version?)
+                }
+            }
+            else
+                darkMode = (theme.Contains("dark"));
+
+            SetDarkMode(darkMode);
+        }
+
+        #endregion
 
         public MainWindow()
         {
