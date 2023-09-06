@@ -107,7 +107,7 @@ namespace Skiff_Desktop
 
         public class ThemeChange
         {
-            [JsonPropertyName("value")]
+            [JsonPropertyName("theme")]
             public string Theme { get; set; }
         }
 
