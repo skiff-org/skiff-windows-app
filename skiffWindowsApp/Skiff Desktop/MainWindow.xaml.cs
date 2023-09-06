@@ -209,23 +209,6 @@ namespace Skiff_Desktop
             WebView2.CoreWebView2.Settings.IsWebMessageEnabled = true; // Make sure this is set to true
 
             await WebView2.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync("window.IsSkiffWindowsDesktop = true;");
-
-            WebView2.CoreWebView2.DOMContentLoaded += async (object? sender, CoreWebView2DOMContentLoadedEventArgs e) =>
-            {
-                // Add callback to detect theme changes
-                await WebView2.CoreWebView2.ExecuteScriptAsync(
-                    @"const localStore = localStorage.setItem;
-                    window.localStorage.setItem = function(key, value) {
-                        if (key === 'THEME_MODE')
-                            chrome.webview.postMessage(JSON.stringify({ type: 'theme', data: {value} }));
-                        localStore.apply(this, arguments);
-                    };"
-                );
-
-                // Get initial value
-                var result = await WebView2.CoreWebView2.ExecuteScriptAsync("localStorage.getItem('THEME_MODE')");
-                SetTheme(result);
-            };
         }
 
         private async void WebView2_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
