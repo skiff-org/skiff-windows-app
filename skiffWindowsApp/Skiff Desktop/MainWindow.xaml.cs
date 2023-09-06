@@ -46,7 +46,9 @@ namespace Skiff_Desktop
             var value = darkMode;
 
             WindowInteropHelper hwnd = new WindowInteropHelper(this);
-            hwnd.EnsureHandle();
+
+            if (hwnd.Handle == IntPtr.Zero)
+                return;
             
             // Sidebar color
             int color = darkMode ? 0x1A1A1A : 0xF5F5F5;
