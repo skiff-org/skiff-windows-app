@@ -23,7 +23,7 @@ namespace Skiff_Desktop
         private ToolStripMenuItem _startMinimizedPreferenceMenuItem;
         private ToolStripMenuItem _preferencesMenuItem;
         private bool _closeFromTrayMenu;
-        private MainWindow _mainWindow;        
+        private MainWindow _mainWindow;
         private PreferencesController _preferencesController;
 
 
@@ -61,16 +61,16 @@ namespace Skiff_Desktop
 
         private void InitTrayIcon()
         {
-            _minimizeToTrayPreferenceMenuItem = new ToolStripMenuItem("Minimize To Tray", null, OnMinimizePreferenceChange);
+            _minimizeToTrayPreferenceMenuItem = new ToolStripMenuItem("Minimize to tray", null, OnMinimizePreferenceChange);
             _minimizeToTrayPreferenceMenuItem.Checked = _preferencesController.MinimizeToTray;
 
-            _closeToTrayPreferenceMenuItem = new ToolStripMenuItem("Close To Tray", null, OnClosePreferenceChange);
+            _closeToTrayPreferenceMenuItem = new ToolStripMenuItem("Close to tray", null, OnClosePreferenceChange);
             _closeToTrayPreferenceMenuItem.Checked = _preferencesController.CloseToTray;
 
-            _startupPreferenceMenuItem = new ToolStripMenuItem("Launch on Startup", null, OnLaunchOnStartupPreferenceChange);
+            _startupPreferenceMenuItem = new ToolStripMenuItem("Launch on startup", null, OnLaunchOnStartupPreferenceChange);
             _startupPreferenceMenuItem.Checked = _preferencesController.LaunchOnStartup;
 
-            _startMinimizedPreferenceMenuItem = new ToolStripMenuItem("Start Minimized", null, OnStartMinimizedPreferenceChange);
+            _startMinimizedPreferenceMenuItem = new ToolStripMenuItem("Start minimized", null, OnStartMinimizedPreferenceChange);
             _startMinimizedPreferenceMenuItem.Checked = _preferencesController.StartMinimized;
 
             _preferencesMenuItem = new ToolStripMenuItem("Preferences");
@@ -88,7 +88,7 @@ namespace Skiff_Desktop
                     {
                         new ToolStripMenuItem("Show", null, OpenFromTray),
                         _preferencesMenuItem,
-                        new ToolStripMenuItem("Check for Updates", null, CheckForUpdates),
+                        new ToolStripMenuItem("Check for updates", null, CheckForUpdates),
                         new ToolStripMenuItem("About", null, About),
                         new ToolStripSeparator(),
                         new ToolStripMenuItem("Quit", null, CloseFromTray)
@@ -133,12 +133,12 @@ namespace Skiff_Desktop
             {
                 var content = response.Content.ReadAsStringAsync().Result;
                 var updateData = JsonSerializer.Deserialize<List<UpdateData>>(content);
-                
+
                 // Sort releases by date and retrieve latest.
-                updateData.Sort((a, b) => b.ReleaseDate.CompareTo(a.ReleaseDate));                
+                updateData.Sort((a, b) => b.ReleaseDate.CompareTo(a.ReleaseDate));
                 var latestRelease = updateData.FirstOrDefault();
 
-                bool updateAvailable = latestRelease.Version > _preferencesController.Version;                
+                bool updateAvailable = latestRelease.Version > _preferencesController.Version;
                 string msgBoxContent = $"Current version {_preferencesController.Version} is up to date.";
                 MessageBoxButton msgBoxButtons = MessageBoxButton.OK;
 
@@ -155,7 +155,7 @@ namespace Skiff_Desktop
 
                 var result = System.Windows.MessageBox.Show(
                     msgBoxContent,
-                    "About Skiff Mail Windows App",
+                    "About Skiff Desktop",
                     msgBoxButtons,
                     MessageBoxImage.None);
 
@@ -169,11 +169,11 @@ namespace Skiff_Desktop
         private void About(object? sender, EventArgs e)
         {
             string content =
-                $"Skiff Mail Windows App \n" +
-                $"Version {_preferencesController.Version} \n" +
+                $"Skiff Desktop\n" +
+                $"Version {_preferencesController.Version}\n" +
                 $"\n" +
-                $"Contact Skiff team: \n" +
-                $"https://skiff.com/mail \n" +
+                $"Contact Skiff team:\n" +
+                $"https://skiff.com\n" +
                 $"support@skiff.org";
 
             System.Windows.MessageBox.Show(
@@ -188,12 +188,12 @@ namespace Skiff_Desktop
             if (_mainWindow.UnreadCount > 0)
             {
                 _trayIcon.Icon = _iconUnreadDot;
-                _trayIcon.Text = $"Skiff Mail ({_mainWindow.UnreadCount} Unread)";
+                _trayIcon.Text = $"Skiff Desktop ({_mainWindow.UnreadCount} Unread)";
             }
             else
             {
                 _trayIcon.Icon = _iconNormal;
-                _trayIcon.Text = "Skiff Mail";
+                _trayIcon.Text = "Skiff Desktop";
             }
         }
 

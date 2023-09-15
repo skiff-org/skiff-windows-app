@@ -52,7 +52,6 @@ namespace Skiff_Desktop
 
             HttpClient = new HttpClient();
             HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Skiff-Mail", "1.0"));
-
             _preferencesController = new PreferencesController(this);
             _trayController = new TrayController(this, _preferencesController);
             _messageProcessor = new MessageProcessor(this);
@@ -129,7 +128,7 @@ namespace Skiff_Desktop
             _notifier.Dispose();
             base.OnClosed(e);
         }
-        
+
         private async Task InitializeBrowser()
         {
             // When installing the app webview attempts to create a folder with cache folders in root app directory
