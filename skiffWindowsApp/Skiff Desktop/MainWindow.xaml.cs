@@ -28,8 +28,6 @@ namespace Skiff_Desktop
         private MessageProcessor _messageProcessor;
         private PreferencesController _preferencesController;
 
-        private WindowState _prevState;
-
 
         public MainWindow()
         {
@@ -59,7 +57,6 @@ namespace Skiff_Desktop
             StateChanged += OnWindowStateChanged;
             SizeChanged += OnWindowSizeChanged;
             RestoreWindow();
-            ApplyWindowPreferences();
         }
 
         internal void RestoreWindow()
@@ -158,6 +155,7 @@ namespace Skiff_Desktop
 
         private async void WebView2_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
+            ApplyWindowPreferences();
             WebView2.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
         }
 
