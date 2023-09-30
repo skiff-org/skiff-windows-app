@@ -3,11 +3,6 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
-using ToastNotifications;
-using ToastNotifications.Lifetime;
-using ToastNotifications.Position;
-using ToastNotifications.Core;
-using CustomNotificationsExample.CustomMessage;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Drawing;
@@ -27,7 +22,6 @@ namespace Skiff_Desktop
         public HttpClient HttpClient { get; private set; }
 
         private string baseURL = "https://app.skiff.com/";
-        private Notifier _notifier;
         private TrayController _trayController;
         private MessageProcessor _messageProcessor;
         private PreferencesController _preferencesController;
@@ -37,20 +31,6 @@ namespace Skiff_Desktop
         {
             InitializeComponent();
             InitializeBrowser();
-
-            _notifier = new Notifier(cfg =>
-            {
-                cfg.PositionProvider = new PrimaryScreenPositionProvider(
-                    corner: Corner.BottomRight,
-                    offsetX: 10,
-                    offsetY: 10);
-                cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(
-                    notificationLifetime: TimeSpan.FromSeconds(15),
-                    maximumNotificationCount: MaximumNotificationCount.FromCount(5));
-                cfg.Dispatcher = System.Windows.Application.Current.Dispatcher;
-                cfg.DisplayOptions.Width = 360;
-                cfg.DisplayOptions.TopMost = true;
-            });
 
             HttpClient = new HttpClient();
             HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Skiff-Mail", "1.0"));
@@ -118,8 +98,7 @@ namespace Skiff_Desktop
 
         internal void ShowToastNotification(string title, string message)
         {
-             var options = new MessageOptions { FreezeOnMouseEnter = true };
-            _notifier.ShowCustomMessage(title, message, options);
+            _trayController.ShowNotification(timeout: 2, title, message);
         }
 
         protected override void OnClosed(EventArgs e)
@@ -127,7 +106,6 @@ namespace Skiff_Desktop
             if (WindowState != WindowState.Minimized)
                 SaveWindowData();
 
-            _notifier.Dispose();
             base.OnClosed(e);
         }
 

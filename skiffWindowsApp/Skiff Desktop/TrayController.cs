@@ -41,6 +41,11 @@ namespace Skiff_Desktop
             UpdateTrayInfo();
         }
 
+        internal void ShowNotification(int timeout, string title, string message)
+        {
+            _trayIcon.ShowBalloonTip(timeout, title, message, ToolTipIcon.Info);
+        }
+
         private void InitIconsBitmaps()
         {
             IntPtr iconHandle = Properties.Resources.logo.GetHicon();
