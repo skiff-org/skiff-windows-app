@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Windows.Media;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace Skiff_Desktop
 {
@@ -42,6 +43,8 @@ namespace Skiff_Desktop
             SizeChanged += OnWindowSizeChanged;
             RestoreWindow();
             TaskbarItemInfo = new();
+
+            ShowToastNotification("This is the subject", "This is the message, a bit longer, but lets check how it looks.");
         }
 
         internal void RestoreWindow()
@@ -98,7 +101,21 @@ namespace Skiff_Desktop
 
         internal void ShowToastNotification(string title, string message)
         {
-            _trayController.ShowNotification(timeout: 2, title, message);
+            // Microsoft.Toolkit.Uwp.Notifications requires net6.0-windows10.0.17763.0, so we are talking
+            // about requiring Windows 10 version 1809 (also known as the October 2018 Update).
+            // As fallback, we use NotifyIcon plain toast notification, which works fine, but is less feature rich.
+            if (Environment.OSVersion.Version.Major >= 10 &&
+                Environment.OSVersion.Version.Build >= 17763)
+            {                
+                new ToastContentBuilder()
+                    .AddText(title)
+                    .AddText(message)
+                    .Show();
+            }
+            else
+            {
+                _trayController.ShowNotification(timeout: 2, title, message);
+            }
         }
 
         protected override void OnClosed(EventArgs e)
