@@ -10,8 +10,11 @@ using ToastNotifications.Core;
 using CustomNotificationsExample.CustomMessage;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.InteropServices;
+using System.Drawing;
+using System.Windows.Media;
 using System.Windows.Interop;
+using System.Windows.Media.Imaging;
+using System.Runtime.InteropServices;
 using Skiff_Desktop.Utilities;
 
 namespace Skiff_Desktop
@@ -102,6 +105,7 @@ namespace Skiff_Desktop
             StateChanged += OnWindowStateChanged;
             SizeChanged += OnWindowSizeChanged;
             RestoreWindow();
+            TaskbarItemInfo = new();
         }
 
         internal void RestoreWindow()
@@ -265,6 +269,31 @@ namespace Skiff_Desktop
         {
             UnreadCount = newTotal;
             UnreadCounterChanged?.Invoke();
+
+            TaskbarItemInfo.Overlay = null;
+            if (UnreadCount > 0)
+                TaskbarItemInfo.Overlay = GetCounterBadge();
+        }
+
+        private ImageSource GetCounterBadge()
+        {
+            using Bitmap bitmap = Properties.Resources.badgebg;
+            using Graphics graphics = Graphics.FromImage(bitmap);
+
+            using StringFormat format = new()
+            {
+                LineAlignment = StringAlignment.Center,
+                Alignment = StringAlignment.Center,
+            };
+            var point = new PointF(15f, 17f);
+            var font = new Font(System.Drawing.FontFamily.GenericSansSerif, emSize: 5f, System.Drawing.FontStyle.Bold);
+            string counterStr = Math.Clamp(UnreadCount, 0, 99).ToString();
+            graphics.DrawString(counterStr, font, System.Drawing.Brushes.White, point, format);
+
+            return Imaging.CreateBitmapSourceFromHIcon(
+                                                bitmap.GetHicon(),
+                                                Int32Rect.Empty,
+                                                BitmapSizeOptions.FromEmptyOptions());
         }
     }
 
