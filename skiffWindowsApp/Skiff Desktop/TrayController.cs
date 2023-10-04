@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -100,7 +100,7 @@ namespace Skiff_Desktop
                 },
                 Visible = true,
             };
-            _trayIcon.DoubleClick += OpenFromTray;
+            _trayIcon.MouseClick += OnMouseClick;
         }
 
         private void OnLaunchOnStartupPreferenceChange(object? sender, EventArgs e)
@@ -211,6 +211,12 @@ namespace Skiff_Desktop
         {
             _closeToTrayPreferenceMenuItem.Checked = !_closeToTrayPreferenceMenuItem.Checked;
             _preferencesController.SetCloseToTray(_closeToTrayPreferenceMenuItem.Checked);
+        }
+
+        private void OnMouseClick(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+                OpenFromTray(sender, e);
         }
 
         private void OpenFromTray(object? sender, EventArgs e)
