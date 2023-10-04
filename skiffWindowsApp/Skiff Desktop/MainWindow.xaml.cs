@@ -9,7 +9,6 @@ using System.Drawing;
 using System.Windows.Media;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace Skiff_Desktop
 {
@@ -26,6 +25,7 @@ namespace Skiff_Desktop
         private TrayController _trayController;
         private MessageProcessor _messageProcessor;
         private PreferencesController _preferencesController;
+        private NotificationsController _notificationsController;
 
 
         public MainWindow()
@@ -37,14 +37,14 @@ namespace Skiff_Desktop
             HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Skiff-Mail", "1.0"));
             _preferencesController = new PreferencesController(this);
             _trayController = new TrayController(this, _preferencesController);
-            _messageProcessor = new MessageProcessor(this);
+            _notificationsController = new NotificationsController(this, _trayController);
+            _messageProcessor = new MessageProcessor(this, _notificationsController);
+            _notificationsController.SetMessageProcessor(_messageProcessor);
 
             StateChanged += OnWindowStateChanged;
             SizeChanged += OnWindowSizeChanged;
             RestoreWindow();
             TaskbarItemInfo = new();
-
-            ShowToastNotification("This is the subject", "This is the message, a bit longer, but lets check how it looks.");
         }
 
         internal void RestoreWindow()
@@ -61,6 +61,16 @@ namespace Skiff_Desktop
             else
             {
                 WindowState = WindowState.Maximized;
+            }
+        }
+
+        internal void OpenWindow()
+        {
+            if (WindowState == WindowState.Minimized)
+            {
+                Show();
+                RestoreWindow();
+                Activate();
             }
         }
 
@@ -97,26 +107,7 @@ namespace Skiff_Desktop
         {
             if (WindowState != WindowState.Minimized)
                 SaveWindowData();
-        }
-
-        internal void ShowToastNotification(string title, string message)
-        {
-            // Microsoft.Toolkit.Uwp.Notifications requires net6.0-windows10.0.17763.0, so we are talking
-            // about requiring Windows 10 version 1809 (also known as the October 2018 Update).
-            // As fallback, we use NotifyIcon plain toast notification, which works fine, but is less feature rich.
-            if (Environment.OSVersion.Version.Major >= 10 &&
-                Environment.OSVersion.Version.Build >= 17763)
-            {                
-                new ToastContentBuilder()
-                    .AddText(title)
-                    .AddText(message)
-                    .Show();
-            }
-            else
-            {
-                _trayController.ShowNotification(timeout: 2, title, message);
-            }
-        }
+        }        
 
         protected override void OnClosed(EventArgs e)
         {

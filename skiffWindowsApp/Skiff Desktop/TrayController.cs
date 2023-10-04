@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -216,12 +215,7 @@ namespace Skiff_Desktop
 
         private void OpenFromTray(object? sender, EventArgs e)
         {
-            if (_mainWindow.WindowState == WindowState.Minimized)
-            {
-                _mainWindow.Show();
-                _mainWindow.RestoreWindow();
-                _mainWindow.Activate();
-            }
+            _mainWindow.OpenWindow();
         }
 
         private void OnWindowStateChanged(object? sender, EventArgs e)
