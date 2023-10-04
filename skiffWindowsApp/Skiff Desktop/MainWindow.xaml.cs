@@ -148,7 +148,7 @@ namespace Skiff_Desktop
             WebView2.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = false;
             WebView2.CoreWebView2.Settings.IsPasswordAutosaveEnabled = true;
             WebView2.CoreWebView2.Settings.IsGeneralAutofillEnabled = true;
-            WebView2.CoreWebView2.Settings.IsStatusBarEnabled = false;
+            WebView2.CoreWebView2.Settings.IsStatusBarEnabled = true;
 
             // this is needed to allow the webview to communicate with the app
             // right now, only for sending notifications
