@@ -70,8 +70,8 @@ namespace Skiff_Desktop
             {
                 Show();
                 RestoreWindow();
-                Activate();
             }
+            Activate();
         }
 
         private void ApplyWindowPreferences()
