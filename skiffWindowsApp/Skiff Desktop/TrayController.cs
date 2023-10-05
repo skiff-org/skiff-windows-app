@@ -221,8 +221,8 @@ namespace Skiff_Desktop
             {
                 _mainWindow.Show();
                 _mainWindow.RestoreWindow();
-                _mainWindow.Activate();
             }
+            _mainWindow.Activate();
         }
 
         private void OnWindowStateChanged(object? sender, EventArgs e)
