@@ -14,6 +14,8 @@ using System.Drawing;
 using System.Windows.Media;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using System.Runtime.InteropServices;
+using Skiff_Desktop.Utilities;
 
 namespace Skiff_Desktop
 {
@@ -32,6 +34,48 @@ namespace Skiff_Desktop
         private MessageProcessor _messageProcessor;
         private PreferencesController _preferencesController;
 
+        #region Dark Theme
+
+        private ThemeWatcher _themeWatcher;
+
+        [DllImport("dwmapi.dll", PreserveSig = true)]
+        static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+        const int DWMWA_CAPTION_COLOR = 35;
+
+        private void SetDarkMode(bool darkMode)
+        {
+            WindowInteropHelper hwnd = new WindowInteropHelper(this);
+            if (hwnd.Handle == IntPtr.Zero)
+                return;
+            
+            // Match sidebar color
+            int color = darkMode ? 0x1A1A1A : 0xF5F5F5;
+            try
+            {
+                DwmSetWindowAttribute(
+                    hwnd.Handle,
+                    DWMWA_CAPTION_COLOR,
+                    ref color, Marshal.SizeOf(color)
+                );
+            }
+            catch (EntryPointNotFoundException)
+            {
+                // Not supported (old Windows version?)
+            }
+        }
+
+        public void SetTheme(string? theme)
+        {
+            bool darkMode = false;
+            if (theme == null || theme.Contains("system"))
+                darkMode = _themeWatcher.GetCurrentTheme() == ThemeMode.Dark;
+            else
+                darkMode = (theme.Contains("dark"));
+
+            SetDarkMode(darkMode);
+        }
+
+        #endregion
 
         public MainWindow()
         {
@@ -149,6 +193,17 @@ namespace Skiff_Desktop
             WebView2.CoreWebView2.Settings.IsPasswordAutosaveEnabled = true;
             WebView2.CoreWebView2.Settings.IsGeneralAutofillEnabled = true;
             WebView2.CoreWebView2.Settings.IsStatusBarEnabled = true;
+
+            // Watch for system theme changes
+            _themeWatcher = new ThemeWatcher();
+            _themeWatcher.ThemeChanged += (sender, theme) => Dispatcher.Invoke(() =>
+            {
+                // Update WebView default theme
+                WebView2.CoreWebView2.Profile.PreferredColorScheme =
+                    (theme == ThemeMode.Dark) ? CoreWebView2PreferredColorScheme.Dark : CoreWebView2PreferredColorScheme.Light;
+
+            });
+            _themeWatcher.Start();
 
             // this is needed to allow the webview to communicate with the app
             // right now, only for sending notifications
