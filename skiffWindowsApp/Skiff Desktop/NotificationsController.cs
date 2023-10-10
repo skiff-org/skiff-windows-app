@@ -10,6 +10,7 @@ namespace Skiff_Desktop
         markAsRead,
         markAsSpam,
         sendToTrash,
+        archive,
     }
 
     internal class NotificationsController
@@ -42,17 +43,21 @@ namespace Skiff_Desktop
                     .AddText(message)
                     .AddArgument("action", NotificationActionType.openThread.ToString())
                     .AddArgument("threadId", threadId)
+                    //.AddButton(new ToastButton()
+                    //    .SetContent("Spam")
+                    //    .AddArgument("action", NotificationActionType.markAsSpam.ToString())
+                    //    .SetBackgroundActivation())
+                    .AddButton(new ToastButton()
+                        .SetContent("Trash")
+                        .AddArgument("action", NotificationActionType.sendToTrash.ToString())
+                        .SetBackgroundActivation())
+                    .AddButton(new ToastButton()
+                        .SetContent("Archive")
+                        .AddArgument("action", NotificationActionType.archive.ToString())
+                        .SetBackgroundActivation())
                     .AddButton(new ToastButton()
                         .SetContent("Mark as Read")
                         .AddArgument("action", NotificationActionType.markAsRead.ToString())
-                        .SetBackgroundActivation())
-                    .AddButton(new ToastButton()
-                        .SetContent("Spam")
-                        .AddArgument("action", NotificationActionType.markAsSpam.ToString())
-                        .SetBackgroundActivation())
-                    .AddButton(new ToastButton()
-                        .SetContent("Send To Trash")
-                        .AddArgument("action", NotificationActionType.sendToTrash.ToString())
                         .SetBackgroundActivation())
                     .Show();
 
@@ -87,6 +92,7 @@ namespace Skiff_Desktop
                     case NotificationActionType.markAsRead:
                     case NotificationActionType.markAsSpam:
                     case NotificationActionType.sendToTrash:
+                    case NotificationActionType.archive:
                         _messageProcessor.SendActionMessage(threadId, action);
                         break;
 
