@@ -133,7 +133,9 @@ namespace Skiff_Desktop
         [Serializable]
         public class NotificationActionData
         {
+            [JsonPropertyName("action")]
             public string Action { get; set; }
+            [JsonPropertyName("threadId")]
             public string ThreadId { get; set; }
         }
 
