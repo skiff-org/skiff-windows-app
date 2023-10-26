@@ -3,11 +3,6 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
-using ToastNotifications;
-using ToastNotifications.Lifetime;
-using ToastNotifications.Position;
-using ToastNotifications.Core;
-using CustomNotificationsExample.CustomMessage;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Drawing;
@@ -27,10 +22,10 @@ namespace Skiff_Desktop
         public HttpClient HttpClient { get; private set; }
 
         private string baseURL = "https://app.skiff.com/";
-        private Notifier _notifier;
         private TrayController _trayController;
         private MessageProcessor _messageProcessor;
         private PreferencesController _preferencesController;
+        private NotificationsController _notificationsController;
 
 
         public MainWindow()
@@ -38,25 +33,13 @@ namespace Skiff_Desktop
             InitializeComponent();
             InitializeBrowser();
 
-            _notifier = new Notifier(cfg =>
-            {
-                cfg.PositionProvider = new PrimaryScreenPositionProvider(
-                    corner: Corner.BottomRight,
-                    offsetX: 10,
-                    offsetY: 10);
-                cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(
-                    notificationLifetime: TimeSpan.FromSeconds(15),
-                    maximumNotificationCount: MaximumNotificationCount.FromCount(5));
-                cfg.Dispatcher = System.Windows.Application.Current.Dispatcher;
-                cfg.DisplayOptions.Width = 360;
-                cfg.DisplayOptions.TopMost = true;
-            });
-
             HttpClient = new HttpClient();
             HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Skiff-Mail", "1.0"));
             _preferencesController = new PreferencesController(this);
             _trayController = new TrayController(this, _preferencesController);
-            _messageProcessor = new MessageProcessor(this);
+            _notificationsController = new NotificationsController(this, _trayController);
+            _messageProcessor = new MessageProcessor(this, _notificationsController);
+            _notificationsController.SetMessageProcessor(_messageProcessor);
 
             StateChanged += OnWindowStateChanged;
             SizeChanged += OnWindowSizeChanged;
@@ -79,6 +62,16 @@ namespace Skiff_Desktop
             {
                 WindowState = WindowState.Maximized;
             }
+        }
+
+        internal void OpenWindow()
+        {
+            if (WindowState == WindowState.Minimized)
+            {
+                Show();
+                RestoreWindow();
+            }
+            Activate();
         }
 
         private void ApplyWindowPreferences()
@@ -114,20 +107,13 @@ namespace Skiff_Desktop
         {
             if (WindowState != WindowState.Minimized)
                 SaveWindowData();
-        }
-
-        internal void ShowToastNotification(string title, string message)
-        {
-             var options = new MessageOptions { FreezeOnMouseEnter = true };
-            _notifier.ShowCustomMessage(title, message, options);
-        }
+        }        
 
         protected override void OnClosed(EventArgs e)
         {
             if (WindowState != WindowState.Minimized)
                 SaveWindowData();
 
-            _notifier.Dispose();
             base.OnClosed(e);
         }
 

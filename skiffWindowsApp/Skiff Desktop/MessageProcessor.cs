@@ -11,16 +11,19 @@ namespace Skiff_Desktop
     {
         newMessageNotifications,
         unreadMailCount,
+        notificationAction,
     }
 
     internal class MessageProcessor
     {
         private MainWindow _mainWindow;
+        private NotificationsController _notificationsController;
 
 
-        public MessageProcessor(MainWindow mainWindow)
+        public MessageProcessor(MainWindow mainWindow, NotificationsController notificationsController)
         {
             _mainWindow = mainWindow;
+            _notificationsController = notificationsController;
         }
 
         internal void CoreWebView2_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
@@ -37,7 +40,7 @@ namespace Skiff_Desktop
                     }
                 };
                 
-                var receivedMessage = JsonSerializer.Deserialize<ReceivedMessage>(rawMessage, options);
+                var receivedMessage = JsonSerializer.Deserialize<MessageWrapper>(rawMessage, options);
 
                 switch (receivedMessage.MsgType)
                 {
@@ -46,7 +49,7 @@ namespace Skiff_Desktop
                         foreach (var notification in notificationsPayload.NotificationData)
                         {
                             Debug.WriteLine($"Displaying toast with title: {notification.Title} and body: {notification.Body}");
-                            _mainWindow.ShowToastNotification(notification.Title, notification.Body);
+                            _notificationsController.ShowToastNotification(notification.Title, notification.Body, notification.ThreadId);
                         }
                         break;
 
@@ -66,11 +69,38 @@ namespace Skiff_Desktop
                 Debug.WriteLine($"Failed to process message: {ex.Message}");
             }
         }
-                
+
+        internal void SendActionMessage(string threadId, string action)
+        {
+            var notificationData = new NotificationActionData()
+            {
+                Action = action,
+                ThreadId = threadId,
+            };
+
+            var messageWrapper = new MessageWrapper()
+            {
+                MsgType = MessageTypes.notificationAction,
+                Data = notificationData
+            };
+
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+                }
+            };
+            string stringData = JsonSerializer.Serialize(messageWrapper, options);
+
+            _mainWindow.WebView2.CoreWebView2.PostWebMessageAsString(stringData);
+        }
+
 
         #region Data Wrappers & Helpers
-                
-        public class ReceivedMessage
+
+        [Serializable]
+        public class MessageWrapper
         {
             [JsonPropertyName("type")]
             public MessageTypes MsgType { get; set; }
@@ -90,12 +120,23 @@ namespace Skiff_Desktop
             public string Title { get; set; }
             [JsonPropertyName("body")]
             public string Body { get; set; }
+            [JsonPropertyName("threadID")]
+            public string ThreadId { get; set; }
         }
 
         public class UnreadCountDataWrapper
         {
             [JsonPropertyName("numUnread")]
             public int UnreadCount { get; set; }
+        }
+
+        [Serializable]
+        public class NotificationActionData
+        {
+            [JsonPropertyName("action")]
+            public string Action { get; set; }
+            [JsonPropertyName("threadId")]
+            public string ThreadId { get; set; }
         }
 
         #endregion

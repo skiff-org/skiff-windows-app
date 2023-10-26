@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
 	<TargetPlatformVersion>10.0</TargetPlatformVersion>
     <RootNamespace>Skiff_Desktop</RootNamespace>
     <Nullable>enable</Nullable>
@@ -10,17 +10,17 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
+    <ApplicationIcon>windows_icon.ico</ApplicationIcon>
 
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="logo.png" />
+    <Content Include="windows_icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1988-prerelease" />
-    <PackageReference Include="ToastNotifications" Version="2.5.1" />
-    <PackageReference Include="ToastNotifications.Messages" Version="2.5.1" />
   </ItemGroup>
 
   <ItemGroup>
