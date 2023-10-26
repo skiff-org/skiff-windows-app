@@ -208,7 +208,7 @@ namespace Skiff_Desktop
 
         private ImageSource GetCounterBadge()
         {
-            using Bitmap bitmap = Properties.Resources.badgebg;
+            using Bitmap bitmap = (Bitmap)Image.FromFile("badgebg.png");
             using Graphics graphics = Graphics.FromImage(bitmap);
 
             using StringFormat format = new()
