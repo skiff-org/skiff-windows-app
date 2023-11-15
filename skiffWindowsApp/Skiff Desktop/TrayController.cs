@@ -47,19 +47,17 @@ namespace Skiff_Desktop
 
         private void InitIconsBitmaps()
         {
-            IntPtr iconHandle = Properties.Resources.logo.GetHicon();
+            using Bitmap bitmap = (Bitmap)Image.FromFile("logo.png");
+            IntPtr iconHandle = bitmap.GetHicon();
             _iconNormal = Icon.FromHandle(iconHandle);
 
             Color niceRed = Color.FromArgb(255, 240, 71, 71);
-            Brush bgColor = new SolidBrush(niceRed);
-            Bitmap bitmap = Properties.Resources.logo; // bitmap.Width: 32
-            Graphics graphics = Graphics.FromImage(bitmap);
+            using Brush bgColor = new SolidBrush(niceRed);
+            using Graphics graphics = Graphics.FromImage(bitmap);
             int diameter = 14;
             int coord = 18;
             Rectangle dotPosAndSize = new Rectangle(coord, coord, diameter, diameter);
             graphics.FillEllipse(bgColor, dotPosAndSize);
-            // If at some point we want to render the counter, we will need this, but will be redraw each time, so wont go here.
-            //graphics.DrawString(_count.ToString(), new Font("Arial Unicode MS", 11), Brushes.White, new PointF(coord, coord));
             _iconUnreadDot = Icon.FromHandle(bitmap.GetHicon());
         }
 
