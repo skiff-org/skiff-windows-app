@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Windows.Media;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using System.Collections.Generic;
 
 namespace Skiff_Desktop
 {
@@ -107,7 +108,7 @@ namespace Skiff_Desktop
         {
             if (WindowState != WindowState.Minimized)
                 SaveWindowData();
-        }        
+        }
 
         protected override void OnClosed(EventArgs e)
         {
@@ -127,7 +128,7 @@ namespace Skiff_Desktop
             await WebView2.EnsureCoreWebView2Async(env);
             WebView2.Source = new Uri(baseURL);
 
-            WebView2.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+            WebView2.CoreWebView2.Settings.AreDefaultContextMenusEnabled = true;
             WebView2.CoreWebView2.Settings.IsScriptEnabled = true;
             WebView2.CoreWebView2.Settings.AreDevToolsEnabled = false;
             WebView2.CoreWebView2.Settings.AreHostObjectsAllowed = false;
@@ -139,9 +140,39 @@ namespace Skiff_Desktop
             // this is needed to allow the webview to communicate with the app
             // right now, only for sending notifications
             WebView2.CoreWebView2.WebMessageReceived += _messageProcessor.CoreWebView2_WebMessageReceived;
-            WebView2.CoreWebView2.Settings.IsWebMessageEnabled = true; // Make sure this is set to true
+            WebView2.CoreWebView2.Settings.IsWebMessageEnabled = true; // Make sure this is set to true            
 
+            // Removes some items from the standard context menu.
+            WebView2.CoreWebView2.ContextMenuRequested += OnContextMenuRequested;
+            
             await WebView2.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync("window.IsSkiffWindowsDesktop = true;");
+        }
+
+        private void OnContextMenuRequested(object sender, CoreWebView2ContextMenuRequestedEventArgs args)
+        {
+            IList<CoreWebView2ContextMenuItem> menuList = args.MenuItems;
+            List<string> menuNamesToRemove = new()
+            {
+                "saveAs",
+                "share",
+                "back",
+                "forward",
+                "reload",
+                "webCapture",
+                "saveLinkAs",
+                "openLinkInNewWindow",
+                "copyImageLocation",
+                "copyLinkToHighlight",
+                "other",
+            };
+
+            for (int i = menuList.Count - 1; i >= 0; i--)
+            {
+                if (menuNamesToRemove.Contains(menuList[i].Name))
+                {
+                    menuList.RemoveAt(i);
+                }
+            }
         }
 
         private async void WebView2_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
