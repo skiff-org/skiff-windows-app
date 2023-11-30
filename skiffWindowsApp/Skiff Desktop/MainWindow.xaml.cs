@@ -1,4 +1,4 @@
-﻿using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Core;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -12,9 +12,6 @@ using System.Windows.Media.Imaging;
 
 namespace Skiff_Desktop
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public Action UnreadCounterChanged;
@@ -30,6 +27,8 @@ namespace Skiff_Desktop
 
         public MainWindow()
         {
+            WpfSingleInstance.Make("Skiff Desktop");
+
             InitializeComponent();
             InitializeBrowser();
 
