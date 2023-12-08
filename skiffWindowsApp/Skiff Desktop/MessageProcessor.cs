@@ -18,7 +18,7 @@ namespace Skiff_Desktop
     {
         private MainWindow _mainWindow;
         private NotificationsController _notificationsController;
-        private List<string> _consumedThreads = new();
+        private List<string> _consumedMessages = new();
 
         public MessageProcessor(MainWindow mainWindow, NotificationsController notificationsController)
         {
@@ -48,9 +48,10 @@ namespace Skiff_Desktop
                         var notificationsPayload = JsonSerializer.Deserialize<NotificationDataWrapper>(receivedMessage.Data.ToString());
                         foreach (var notification in notificationsPayload.NotificationData)
                         {
-                            if (_consumedThreads.Contains(notification.ThreadId))
+                            if (_consumedMessages.Contains(notification.EmailId))
                                 continue;
 
+                            _consumedMessages.Add(notification.EmailId);
                             Debug.WriteLine($"Displaying toast with title: {notification.Title} and body: {notification.Body}");
                             _notificationsController.ShowToastNotification(notification.Title, notification.Body, notification.ThreadId);
                         }
@@ -125,6 +126,8 @@ namespace Skiff_Desktop
             public string Body { get; set; }
             [JsonPropertyName("threadID")]
             public string ThreadId { get; set; }
+            [JsonPropertyName("emailID")]
+            public string EmailId { get; set; }
         }
 
         public class UnreadCountDataWrapper
